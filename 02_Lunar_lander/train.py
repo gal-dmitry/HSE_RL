@@ -29,7 +29,7 @@ model = nn.Sequential(
 
 class DQN:
     def __init__(self, state_dim, action_dim):
-        self.steps = 0  # Do not change
+        self.steps = 0
 
         self.model = copy.deepcopy(model)
         self.target_model = copy.deepcopy(model)
@@ -40,19 +40,9 @@ class DQN:
         self.replay_buffer = deque(maxlen=INITIAL_STEPS)
         self.optimizer = Adam(self.model.parameters(), lr=LEARNING_RATE)
 
-        #         device = torch.device("cuda")
-        #         self.model.to(device)
-        #         self.target_model.to(device)
-
-        # self.model.cuda()
-        # self.target_model.cuda()
-
-    #         self.optimizer.cuda()
 
     def consume_transition(self, transition):
         # Add transition to a replay buffer.
-        # Hint: use deque with specified maxlen. It will remove old experience automatically.
-
         state, action, next_state, reward, done = transition
 
         action_ = [0 for i in range(8)]
@@ -69,10 +59,6 @@ class DQN:
 
     def sample_batch(self):
         # Sample batch from a replay buffer.
-        # Hints:
-        # 1. Use random.randint
-        # 2. Turn your batch into a numpy.array before turning it to a Tensor. It will work faster
-
         batch = random.sample(self.replay_buffer, BATCH_SIZE)
         batch = np.array(batch, dtype=np.float32).reshape(BATCH_SIZE, 5, -1)
         batch = torch.from_numpy(batch).cuda()
@@ -115,19 +101,17 @@ class DQN:
         self.optimizer.step()
 
     def update_target_network(self):
-        # Update weights of a target Q-network here. You may use copy.deepcopy to do this or
-        # assign a values of network parameters via PyTorch methods.
+        # Update weights of a target Q-network.
         self.target_model = copy.deepcopy(self.model)
 
     def act(self, state, target=False):
-        # Compute an action. Do not forget to turn state to a Tensor and then turn an action to a numpy array.
+        # Compute an action.
         state = torch.tensor(state).cuda()
         state = state.float().unsqueeze(0)
         action = self.model(state)[0].max(0)[1].view(1, 1).item()
         return action
 
     def update(self, transition):
-        # You don't need to change this
         self.consume_transition(transition)
         if self.steps % STEPS_PER_UPDATE == 0:
             batch = self.sample_batch()

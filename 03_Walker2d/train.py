@@ -1,5 +1,4 @@
 import pybullet_envs
-# Don't forget to install PyBullet!
 from gym import make
 import numpy as np
 import torch
@@ -58,7 +57,7 @@ class Actor(nn.Module):
         self.sigma = nn.Parameter(torch.zeros(action_dim))
         
     def compute_proba(self, state, action):
-        # Returns probability of action according to current policy and distribution of actions (use it to compute entropy loss) 
+        # Returns probability of action according to current policy and distribution of actions 
         mu = self.model(state)
         sigma = torch.exp(self.sigma).unsqueeze(0).expand_as(mu)
         distr = Normal(mu, sigma)
